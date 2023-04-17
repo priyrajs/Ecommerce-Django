@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+	<div class="row">
+    {% for course in courses %}
+		<div class="col-lg-4">
+			<img class="thumbnail" src="{{course.imageURL}}">
+			<div class="box-element product">
+				<h6><strong>{{ course.name }}</strong></h6>
+				<hr>
+
+				<button id="{{course.id}}" data-action="add" class="btn btn-outline-secondary add-btn update-cart">Add to Cart</button>
+				<a class="btn btn-outline-success" href="#">View</a>
+				<h4 style="display: inline-block; float: right"><strong>₹{{ course.price }}</strong></h4>
+
+			</div>
+		</div>
+    {% endfor %}
+	</div>
+  </br>
+
+{% endblock content %}

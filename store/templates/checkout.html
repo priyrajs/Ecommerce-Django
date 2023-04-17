@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+     <div class="row">
+		<div class="col-lg-6">
+			<div class="box-element" id="form-wrapper">
+				<form id="form">
+					<div id="user-info">
+						<div class="form-field">
+							<input required class="form-control" type="text" id="fname" name="fname" placeholder="First Name..">
+						</div>
+						<div class="form-field">
+							<input required class="form-control" type="text" id="lname" name="lname" placeholder="Last Name..">
+						</div>
+						<div class="form-field">
+							<input required class="form-control" type="email" id="email" name="email" placeholder="Email..">
+						</div>
+						<div class="form-field">
+							<input required class="form-control" type="password" id="password" name="password" placeholder=" Create a Password..">
+						</div>
+					</div>
+					
+					{% comment %} <div id="shipping-info">
+						<hr>
+						<p>Shipping Information:</p>
+						<hr>
+						<div class="form-field">
+							<input class="form-control" type="text" name="address" placeholder="Address..">
+						</div>
+						<div class="form-field">
+							<input class="form-control" type="text" name="city" placeholder="City..">
+						</div>
+						<div class="form-field">
+							<input class="form-control" type="text" name="state" placeholder="State..">
+						</div>
+						<div class="form-field">
+							<input class="form-control" type="text" name="zipcode" placeholder="Zip code..">
+						</div>
+						<div class="form-field">
+							<input class="form-control" type="text" name="country" placeholder="Zip code..">
+						</div>
+					</div> {% endcomment %}
+
+					<hr>
+					<input id="form-button" class="btn btn-success btn-block" type="submit" value="Continue">
+				</form>
+			</div>
+
+			<br>
+			<div class="box-element hidden" id="payment-info">
+				<small>Payment Options</small>
+				<button id="make-payment">Stimulate Online Payment</button>
+			</div>
+			
+		</div>
+
+		<div class="col-lg-6">
+			<div class="box-element">
+				<a  class="btn btn-outline-dark" href="{% url 'cart' %}">&#x2190; Back to Cart</a>
+				<hr>
+				<h3>Order Summary</h3>
+				<hr>
+				{% for item in items %}
+				<div class="cart-row">
+					<div style="flex:2"><img class="row-image" src="{{ item.course.imageURL}}"></div>
+					<div style="flex:2"><p>{{item.course.name}}</p></div>
+					<div style="flex:1"><p>₹{{ item.course.price}}</p></div>
+					<div style="flex:1"><p>x{{ item.quantity }}</p></div>
+				</div>
+				{% endfor %}
+				<h5>Items: {{ order.get_cart_items }}</h5>
+				<h5>Total: ₹ {{ order.get_cart_total }}</h5>
+			</div>
+		</div>
+	</div>
+<script type="text/javascript">
+var user = '{{request.user}}'
+var total = '{{order.get_cart_total}}'
+
+if(user != "AnonymousUser")
+{
+	$('#user-info').addClass("hidden");
+	$('#form-wrapper').addClass("hidden");;
+	$("#payment-info").removeClass("hidden");
+}
+$("form").on('submit',function(e){
+	e.preventDefault();
+	$('#form-button').addClass("hidden");
+	$("#payment-info").removeClass("hidden");
+	
+});
+
+$("#make-payment").on('click',function(){
+	if(user != "AnonymousUser")
+	{
+		var name = '';
+		var email = '';
+	}
+	else
+	{
+		fname = $('#fname').val();
+		lname = $('#lname').val();
+		email = $('#email').val();
+		password = $('#password').val();
+	}
+	var data = "fname="+fname+"&lname="+lname+"&email="+email+"&total="+total+"&password="+password;
+	//alert(data);
+	$.ajax({
+		url: '/processOrder/',
+		type: "POST",
+		data: data,
+		dataType: "text",
+		headers: {'X-CSRFToken': csrftoken},
+		success:function(response)
+		{
+			//$('#cart-total').html(response);
+			console.log(response)
+			cart= {}
+			document.cookie ='cart=' + JSON.stringify(cart) + ";domain=;path=/"
+			window.location.href = "{% url 'store' %}";
+		}
+	});
+});
+</script>
+{% endblock content %}
